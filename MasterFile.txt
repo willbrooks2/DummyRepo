@@ -1,1 +1,7 @@
 This is a file to be held in the Master Branch for show
+
+Now that the subdevelopment branch is open, we can begin to make changes, without affecting the development branch, or master
+
+If something we do is wrong, we can track the changes back to the merges that take place
+
+We are now making the final changes before we merge development with master. This should be done on a subdevelopment branch
