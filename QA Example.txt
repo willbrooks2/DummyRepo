@@ -32,8 +32,8 @@ plics.[ActivityRowid],
 plics.[TotalCost]	
 --PSS tool tested and figures match expected figures for Spec Comm
 FROM [AcuteDM].[Fact_Activity_APC_Episode_PLICS] plics	
-
-LEFT JOIN HESMART.Fact_APC_Episode hes	
+--INNER JOIN just because
+INNER JOIN HESMART.Fact_APC_Episode hes	
 ON plics.[PLICSRecordIdentifier] = hes.[EpiKEY] and plics.Period = hes.Period	
 LEFT JOIN [HESMART].[Dim_CCG] com	
 ON com.[CCG_Key] = hes.[CCG_RESPONSIBILITY_Key]	
