@@ -1,0 +1,72 @@
+--APC Query 21-22 V1.0
+
+SELECT
+      temp1.[CCG_Code]	
+	  ,temp1.[Provider_Code] 
+	  ,temp1.[POD] 
+      ,temp1.[Chapter] 
+      ,temp1.[SubChapter] 	
+	  ,temp1.[HRGCode] 
+/*Spec Comm Fields*/	
+	  ,SUM (temp1.[Spec_Comm_Cost]) as 'Spec_Comm_Cost'
+	  ,SUM (temp1.[Spec_Comm_Activity]) as 'Spec_Comm_Activity'
+	  ,(SUM (temp1.[TotalCost]) - SUM (temp1.[Spec_Comm_Cost])) as 'Non_Spec_Comm_Cost'
+	  ,(COUNT (temp1.[ActivityRowid]) - SUM (temp1.[Spec_Comm_Activity])) as 'Non_Spec_Comm_Activity'
+	  ,COUNT (temp1.[ActivityRowid]) as 'Activity'
+      ,SUM (temp1.[TotalCost]) as 'Cost'
+FROM 
+(
+
+SELECT com.[CCG_Code],
+LEFT (prov.[Provider_Code], 3) as 'Provider_Code',
+plics.[POD],	
+hrg.[Chapter],
+hrg.[SubChapter],
+hrg.[HRGCode],
+--add in spec comm fields
+CASE WHEN pss.SERVICELINE IS NOT NULL  THEN plics.[TotalCost]
+ELSE '0' END AS 'Spec_Comm_Cost',
+CASE WHEN pss.SERVICELINE IS NOT NULL THEN CAST ('1' As INT)
+ELSE CAST ('0' As INT) END AS 'Spec_Comm_Activity',
+plics.[ActivityRowid],
+plics.[TotalCost]	
+
+FROM [AcuteDM].[Fact_Activity_APC_Episode_PLICS] plics	
+
+LEFT JOIN HESMART.Fact_APC_Episode hes	
+ON plics.[PLICSRecordIdentifier] = hes.[EpiKEY] and plics.Period = hes.Period	
+LEFT JOIN [HESMART].[Dim_CCG] com	
+ON com.[CCG_Key] = hes.[CCG_RESPONSIBILITY_Key]	
+LEFT JOIN [AcuteDM].[Dim_Provider] prov	
+ON plics.[Provider_Key] = prov.[Provider_Key] and plics.Period = prov.Period	
+LEFT JOIN [AcuteDM].[Dim_HRG] hrg	
+ON plics.[HRG_Key] = hrg.[HRG_Key] and plics.Period = hrg.Period
+/*Join Community Identifier Table*/
+LEFT JOIN [AcuteDM].[Dim_EpGro] community
+ON plics.[EpGro_Key] = community.[EpGro_Key] AND plics.[Period] = community.[Period]
+/*Join to Spec Comm table*/
+LEFT JOIN [PSS].[APC_FCE] pss
+ON plics.[PLICSRecordIdentifier] = pss.[HES_EPIKEY] and plics.[Period] = pss.[Period]
+	  and pss.[ToolID] = '129'
+	  and pss.[ToolContext] = 'OperationalTool'
+	  and pss.[Version] = '2223'
+	  and pss.[Source_FileID] = 'HESAPC_322'
+	  and pss.[InputID] = '197'
+
+WHERE ((prov.[Provider_Code] like 'R%') or (prov.[Provider_Code] like 'T%'))	
+and plics.[Period] = 'FY2021-22'
+AND community.[EpGro_Code] IN ('01', '09')
+) AS temp1
+
+GROUP BY temp1.[CCG_Code]	
+	  ,temp1.[Provider_Code]
+	  ,temp1.[POD]
+      ,temp1.[Chapter]	
+      ,temp1.[SubChapter]	
+	  ,temp1.[HRGCode]
+ORDER BY temp1.[CCG_Code]	
+	  ,temp1.[Provider_Code]
+	  ,temp1.[POD]
+      ,temp1.[Chapter]	
+      ,temp1.[SubChapter]	
+	  ,temp1.[HRGCode]
