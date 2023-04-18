@@ -1,4 +1,4 @@
-
+I am making some further changes to the file
 This is a file to be held in the Master Branch for show. This is a change that I am making to test whether edits can be merged without fault
 ##I am doing QA
 
@@ -10,3 +10,4 @@ Now that the subdevelopment branch is open, we can begin to make changes, withou
 If something we do is wrong, we can track the changes back to the merges that take place
 
 We are now making the final changes before we merge development with master. This should be done on a subdevelopment branch. Another change here.
+My changes will take make this file better
