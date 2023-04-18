@@ -30,7 +30,7 @@ CASE WHEN pss.SERVICELINE IS NOT NULL THEN CAST ('1' As INT)
 ELSE CAST ('0' As INT) END AS 'Spec_Comm_Activity',
 plics.[ActivityRowid],
 plics.[TotalCost]	
-
+--PSS tool tested and figures match expected figures for Spec Comm
 FROM [AcuteDM].[Fact_Activity_APC_Episode_PLICS] plics	
 
 LEFT JOIN HESMART.Fact_APC_Episode hes	
